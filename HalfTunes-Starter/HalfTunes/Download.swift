@@ -16,7 +16,7 @@ class Download {
   }
   
   
-  var task: URLSessionDownloadTask
+  var task: URLSessionDownloadTask?
   var isDownloading = false
   var resumeData: Data?
   

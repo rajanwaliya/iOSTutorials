@@ -44,20 +44,44 @@ class DownloadService {
 
   func startDownload(_ track: Track) {
     // TODO
+    let download = Download(track: track)
+    download.task = downloadsSession.downloadTask(with: track.previewURL)
+    download.task!.resume()
+    download.isDownloading = true
+    print("we started download")
+    activeDownloads[track.previewURL] = download
   }
   // TODO: previewURL is http://a902.phobos.apple.com/...
   // why doesn't ATS prevent this download?
 
   func pauseDownload(_ track: Track) {
     // TODO
+    if let download = activeDownloads[track.previewURL]{
+      download.task?.cancel(byProducingResumeData: { data in
+        download.resumeData = data
+      })
+      download.isDownloading = false
+    }
   }
 
   func cancelDownload(_ track: Track) {
     // TODO
+    if let download = activeDownloads[track.previewURL]{
+      download.task?.cancel()
+      activeDownloads[track.previewURL] = nil
+    }
   }
 
   func resumeDownload(_ track: Track) {
     // TODO
+    guard let download = activeDownloads[track.previewURL] else {return}
+    if let resumeData = download.resumeData{
+      download.task = downloadsSession.downloadTask(withResumeData: resumeData)
+    }else{
+      download.task = downloadsSession.downloadTask(with: track.previewURL)
+    }
+    download.task?.resume()
+    download.isDownloading = true
   }
 
 }
